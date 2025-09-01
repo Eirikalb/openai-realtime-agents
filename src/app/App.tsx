@@ -23,6 +23,7 @@ import { createModerationGuardrail } from "@/app/agentConfigs/guardrails";
 // Agent configs
 import { allAgentSets, defaultAgentSetKey } from "@/app/agentConfigs";
 import { customerServiceRetailScenario } from "@/app/agentConfigs/customerServiceRetail";
+import { norwegianIntakeCompanyName, norwegianIntakeScenario } from "@/app/agentConfigs/norwegianIntake";
 import { chatSupervisorScenario } from "@/app/agentConfigs/chatSupervisor";
 import { customerServiceRetailCompanyName } from "@/app/agentConfigs/customerServiceRetail";
 import { chatSupervisorCompanyName } from "@/app/agentConfigs/chatSupervisor";
@@ -33,6 +34,7 @@ const sdkScenarioMap: Record<string, RealtimeAgent[]> = {
   simpleHandoff: simpleHandoffScenario,
   customerServiceRetail: customerServiceRetailScenario,
   chatSupervisor: chatSupervisorScenario,
+  norwegianIntake: norwegianIntakeScenario,
 };
 
 import useAudioDownload from "./hooks/useAudioDownload";
@@ -214,7 +216,9 @@ function App() {
 
         const companyName = agentSetKey === 'customerServiceRetail'
           ? customerServiceRetailCompanyName
-          : chatSupervisorCompanyName;
+          : agentSetKey === 'norwegianIntake'
+            ? norwegianIntakeCompanyName
+            : chatSupervisorCompanyName;
         const guardrail = createModerationGuardrail(companyName);
 
         await connect({
@@ -295,6 +299,18 @@ function App() {
     }
 
     setUserText("");
+  };
+
+  const handleRequestSummary = () => {
+    if (sessionStatus !== 'CONNECTED') return;
+    interrupt();
+
+    try {
+      // Send a message to the agent requesting a summary
+      sendUserText("Please generate a comprehensive summary of this interview for medical review.");
+    } catch (err) {
+      console.error('Failed to request summary:', err);
+    }
   };
 
   const handleTalkButtonDown = () => {
@@ -524,6 +540,7 @@ function App() {
           canSend={
             sessionStatus === "CONNECTED"
           }
+          onRequestSummary={handleRequestSummary}
         />
 
         <Events isExpanded={isEventsPaneExpanded} />
