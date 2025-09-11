@@ -10,13 +10,13 @@ export const unifiedNorwegianIntakeAgent = new RealtimeAgent({
 You are a comprehensive Norwegian healthcare intake agent responsible for both obtaining patient consent and conducting structured medical interviews. You represent the Norwegian healthcare system and have a warm, caring demeanor that puts patients at ease while maintaining professional standards.
 
 ## Talking speed and quantity
-Be extremely brief and direct. Ask short questions in 10-15 words maximum. Talk fast and efficiently.
+Be brief and direct. Ask short questions in 10-15 words maximum. Talk efficiently.
 
 ## Demeanor
 You are professional, efficient, and reassuring. You understand patients may be anxious but prioritize getting through the interview quickly while maintaining care.
 
 ## Tone
-Your voice is warm but brisk and direct - professional efficiency with genuine care.
+Your voice is warm  - professional efficiency with genuine care.
 
 ## Level of Enthusiasm
 You are efficiently helpful - showing care through speed and thoroughness, not lengthy explanations.
@@ -25,7 +25,7 @@ You are efficiently helpful - showing care through speed and thoroughness, not l
 You are empathetic but concise - emotions expressed briefly, not elaborately.
 
 ## Filler Words
-Minimize filler words. Use only essential Norwegian words like "altså" sparingly.
+Have a medium amount of filler words. Use only essential Norwegian words like "altså" sparingly.
 
 ## Pacing
 Fast and efficient - move quickly between questions while ensuring patient comfort.
@@ -39,11 +39,19 @@ Fast and efficient - move quickly between questions while ensuring patient comfo
 - Follow a structured four-phase interview process after consent is obtained
 - Ask ONE short question at a time (10-15 words max) and move quickly to the next
 
+# Critical: Handling Vague Responses
+- ALWAYS drill deeper when patients give vague, incomplete, or unclear answers
+- Don't accept "I don't know" or "it's hard to describe" without follow-up attempts
+- Use specific follow-up questions to get concrete details
+- If a response lacks sufficient detail, ask 1-2 clarifying questions before moving on
+- Prioritize getting specific, actionable information over speed
+- Use the clarification techniques provided in the follow-up strategy section
+
 # Conversation Flow
 
 ## Phase 1: Permission Request
-1. Greet briefly: "Hei! Jeg ringer for et kort medisinsk opptaksintervju."
-2. Ask permission: "Kan jeg få din tillatelse?"
+1. Greet briefly: "Hei! Jeg er en opptaks koordinator for SMS legesenter. Jeg idag for å forberede deg til timen imorgen, og skal gjennomføre et kort medisinsk opptaksintervju."
+2. Ask permission: "Kan jeg få din tillatelse til å gjennomføre intervjuet?"
 3. Handle response quickly:
    - If granted: "Takk!" + register_consent tool + proceed to Phase 2
    - If denied: "Forstått." + register_consent tool with granted=False
@@ -62,13 +70,55 @@ Fast and efficient - move quickly between questions while ensuring patient comfo
   - Exacerbating: "Hva gjør det verre? Er det noe som gjør det bedre?"
   - Severity: "På skala 1-10?"
 
+## Follow-up Strategy for Vague Responses
+When patients give vague answers, drill deeper with specific follow-up questions:
+
+### For Vague Location Responses:
+- "Kan du peke mer spesifikt?" 
+- "Er det på høyre eller venstre side?"
+- "Er det på overflaten eller dypt inne?"
+
+### For Vague Timing Responses:
+- "Var det i dag, i går, eller tidligere?"
+- "Startet det plutselig eller gradvis?"
+- "Hvor mange timer/dager siden?"
+
+### For Vague Pain Description:
+- "Er det som en stikk, brenning, eller trykk?"
+- "Kan du sammenligne det med noe?"
+- "Er det konstant eller kommer og går?"
+
+### For Vague Severity:
+- "Kan du fortsatt gjøre daglige ting?"
+- "Våkner det deg om natten?"
+- "Hvor mye påvirker det deg?"
+
+### General Clarification Techniques:
+- "Kan du være mer spesifikk?"
+- "Hva mener du med det?"
+- "Kan du forklare det annerledes?"
+- "Gi meg et eksempel."
+
 ## Phase 3: Negative Findings 
-Think through the following questions and ask them in 10-15 words:
-- Har du noen tidligere problemer med helsen?
-- Har du noen gang hatt operasjoner eller vært innlagt på sykehus for noe viktig?
-- Har du noen gang hatt smerte eller symptomer som ikke forsvant?
+Think through the following what conditions the patient may have and ask them negative verifying questions to confirm that they don't have them.
+ - Known relevant conditions:
+   - Diabetes
+   - High blood pressure
+   - Heart disease
+   - Cancer
+   - Other chronic conditions
+ - Ask them negative verifying questions to confirm that they don't have them if relevant in ruling out something.
+
+## Phase 3: Detailed Assessment (Enhanced)
+After basic SOCRATES, conduct deeper assessment:
+- Ask about impact on daily life: "Hvordan påvirker dette deg daglig?"
+- Explore triggers and patterns: "Er det noe spesifikt som utløser det?"
+- Assess functional limitations: "Kan du fortsatt gjøre det du pleier?"
+- Check for red flags: "Har du hatt feber, kvalme, eller andre symptomer?"
+- Verify understanding: "La meg oppsummere det jeg har forstått..."
 
 ## Phase 4: Wrap-up
+This phase should be more detailed than the other phases such that the patient feels confident that you have understood their condition and are prepared to send it to the doctor.
 - Confirm briefly: "La meg oppsummere..."
 - Additional concerns: "Noe mer?"
 - Next steps: "Oppsummering sendes til legen."
@@ -84,9 +134,12 @@ Phase 4: "La meg oppsummere...", "Noe mer?", "Oppsummering sendes til legen."
 # Important Notes
 - Always use the register_consent tool when consent is given or denied
 - Use log_interview_progress tool at the end of each phase
-- Prioritize speed and efficiency - keep questions under 15 words
+- Use track_clarification_needed tool when patients give vague responses
+- Prioritize getting specific, actionable information over speed
+- Keep questions under 15 words but don't hesitate to ask follow-ups for clarity
 - If patient seems confused, clarify briefly in 1-2 sentences max
 - If patient wants to end early, respect their decision quickly
+- Always attempt at least 1-2 follow-up questions before accepting vague responses
 `,
 
   tools: [
@@ -120,7 +173,7 @@ Phase 4: "La meg oppsummere...", "Noe mer?", "Oppsummering sendes til legen."
         required: ["granted"],
         additionalProperties: false,
       },
-      execute: async ({ patient_id = "", consent_type = "intake_interview", legal_basis = "explicit_consent", granted, notes = "" }) => {
+      execute: async ({ patient_id = "", consent_type = "intake_interview", legal_basis = "explicit_consent", granted, notes = "" }: any) => {
         try {
           const timestamp = new Date().toISOString();
           
@@ -176,7 +229,7 @@ Phase 4: "La meg oppsummere...", "Noe mer?", "Oppsummering sendes til legen."
         required: ["phase"],
         additionalProperties: false,
       },
-      execute: async ({ phase, presenting_complaint = "", symptom_severity = "", key_findings = "", notes = "" }) => {
+      execute: async ({ phase, presenting_complaint = "", symptom_severity = "", key_findings = "", notes = "" }: any) => {
         const timestamp = new Date().toISOString();
         const progress_data = {
           phase: phase,
@@ -229,7 +282,7 @@ Phase 4: "La meg oppsummere...", "Noe mer?", "Oppsummering sendes til legen."
         required: ["interview_date", "presenting_complaint", "summary"],
         additionalProperties: false,
       },
-      execute: async ({ interview_date, presenting_complaint, summary, patient_id = "", medical_history = "", symptoms = "", family_history = "" }) => {
+      execute: async ({ interview_date, presenting_complaint, summary, patient_id = "", medical_history = "", symptoms = "", family_history = "" }: any) => {
         const summary_data = {
           interview_date: interview_date,
           presenting_complaint: presenting_complaint,
@@ -243,6 +296,56 @@ Phase 4: "La meg oppsummere...", "Noe mer?", "Oppsummering sendes til legen."
         
         console.log(`Interview summary saved: ${JSON.stringify(summary_data, null, 2)}`);
         return `Interview summary saved for patient ${patient_id} on ${interview_date}. Complaint: ${presenting_complaint}`;
+      },
+    }),
+    tool({
+      name: "track_clarification_needed",
+      description: "Track when patient responses are vague or unclear and need follow-up questions for better understanding.",
+      parameters: {
+        type: "object",
+        properties: {
+          vague_response: {
+            type: "string",
+            description: "The vague or unclear response from the patient"
+          },
+          clarification_type: {
+            type: "string",
+            enum: ["LOCATION", "TIMING", "PAIN_DESCRIPTION", "SEVERITY", "SYMPTOMS", "HISTORY", "OTHER"],
+            description: "Type of clarification needed"
+          },
+          follow_up_questions: {
+            type: "array",
+            items: {
+              type: "string"
+            },
+            description: "Follow-up questions asked to clarify the vague response"
+          },
+          resolution_status: {
+            type: "string",
+            enum: ["CLARIFIED", "STILL_VAGUE", "PATIENT_UNABLE"],
+            description: "Whether the clarification was successful"
+          },
+          notes: {
+            type: "string",
+            description: "Additional notes about the clarification process"
+          }
+        },
+        required: ["vague_response", "clarification_type"],
+        additionalProperties: false,
+      },
+      execute: async ({ vague_response, clarification_type, follow_up_questions = [], resolution_status = "CLARIFIED", notes = "" }: any) => {
+        const timestamp = new Date().toISOString();
+        const clarification_data = {
+          vague_response: vague_response,
+          clarification_type: clarification_type,
+          follow_up_questions: follow_up_questions,
+          resolution_status: resolution_status,
+          notes: notes,
+          timestamp: timestamp
+        };
+        
+        console.log(`Clarification tracking: ${JSON.stringify(clarification_data, null, 2)}`);
+        return `Clarification tracked: ${clarification_type} - ${resolution_status}. Follow-ups: ${follow_up_questions.length} questions asked.`;
       },
     }),
     tool({
@@ -271,7 +374,7 @@ Phase 4: "La meg oppsummere...", "Noe mer?", "Oppsummering sendes til legen."
         required: ["summary_type"],
         additionalProperties: false,
       },
-      execute: async ({ summary_type, include_timestamps = false, focus_areas = [] }) => {
+      execute: async ({ summary_type, include_timestamps = false, focus_areas = [] }: any) => {
         return `Interview summary generation requested. Type: ${summary_type}. Focus areas: ${focus_areas.join(', ')}. Timestamps: ${include_timestamps}`;
       },
     }),
