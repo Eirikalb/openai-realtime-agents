@@ -1,5 +1,6 @@
 import { permissionRequestAgent } from './permissionRequest';
 import { interviewAgent } from './interview';
+import { unifiedNorwegianIntakeAgent } from './unifiedIntake';
 
 // Set up handoffs between agents
 (permissionRequestAgent.handoffs as any).push(interviewAgent);
@@ -8,6 +9,10 @@ import { interviewAgent } from './interview';
 export const norwegianIntakeScenario = [
   permissionRequestAgent,
   interviewAgent,
+];
+
+export const unifiedNorwegianIntakeScenario = [
+  unifiedNorwegianIntakeAgent,
 ];
 
 // Name of the company represented by this agent set. Used by guardrails

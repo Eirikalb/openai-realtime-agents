@@ -23,7 +23,7 @@ import { createModerationGuardrail } from "@/app/agentConfigs/guardrails";
 // Agent configs
 import { allAgentSets, defaultAgentSetKey } from "@/app/agentConfigs";
 import { customerServiceRetailScenario } from "@/app/agentConfigs/customerServiceRetail";
-import { norwegianIntakeCompanyName, norwegianIntakeScenario } from "@/app/agentConfigs/norwegianIntake";
+import { norwegianIntakeCompanyName, norwegianIntakeScenario, unifiedNorwegianIntakeScenario } from "@/app/agentConfigs/norwegianIntake";
 import { chatSupervisorScenario } from "@/app/agentConfigs/chatSupervisor";
 import { customerServiceRetailCompanyName } from "@/app/agentConfigs/customerServiceRetail";
 import { chatSupervisorCompanyName } from "@/app/agentConfigs/chatSupervisor";
@@ -35,6 +35,7 @@ const sdkScenarioMap: Record<string, RealtimeAgent[]> = {
   customerServiceRetail: customerServiceRetailScenario,
   chatSupervisor: chatSupervisorScenario,
   norwegianIntake: norwegianIntakeScenario,
+  unifiedNorwegianIntake: unifiedNorwegianIntakeScenario,
 };
 
 import useAudioDownload from "./hooks/useAudioDownload";
